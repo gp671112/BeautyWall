@@ -22,3 +22,5 @@ Route::get('main', function ()
 });
 
 Route::get('request', 'MainController');
+
+Route::get('db', 'dbTest');

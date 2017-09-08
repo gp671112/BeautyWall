@@ -65,7 +65,7 @@
                         carouselItem += " active";
                     }
 
-                    var height = $(document).height() - 200;
+                    var height = $(document).height() - 300;
 
                     carouselItem += "'><img class='img-responsive center-block' src='" + oneBeauty[i] + "' style='max-height: " + height + "px'></div>";
 
