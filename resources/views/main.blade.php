@@ -15,12 +15,14 @@
         <script>
 
             var beautyArray = {};
-            function request() {
+            var pageCount = 0;
+
+            function request(page) {
 
                 var timeCount = new Date();
                 $.ajax({
                     method: "GET",
-                    url: "request",
+                    url: "request/" + page,
                     dataType: "json",
                     beforeSend: function () {
                         timeCount.getTime();
@@ -29,11 +31,9 @@
                     console.log("ajax done");
                     timeCount = new Date().getTime() - timeCount;
                     console.log("used " + timeCount + " ms");
-
                     // 巡覽response物件
                     for (var i = response.length - 1; i >= 0; i--) {
                         var oneBeauty = response[i];
-
                         // 單個物件，取得key(string)及value(array)
                         for (var key in oneBeauty) {
                             beautyArray[key] = oneBeauty[key];
@@ -49,15 +49,10 @@
 
             function rowClick() {
                 console.log("rowClick()");
-
                 var key = getChooseRowKey($(this));
                 var oneBeauty = beautyArray[key];
 
-//                console.log(key);
-//                console.log(beautyArray[key]);
-
                 $(".carousel-inner").children("div,img").remove();
-
                 for (var i = oneBeauty.length - 1; i >= 0; i--) {
 
                     var carouselItem = "<div class='item";
@@ -65,10 +60,8 @@
                         carouselItem += " active";
                     }
 
-                    var height = $(document).height() - 300;
-
+                    var height = $(window).height() - 200;
                     carouselItem += "'><img class='img-responsive center-block' src='" + oneBeauty[i] + "' style='max-height: " + height + "px'></div>";
-
                     $(".carousel-inner").prepend(carouselItem);
                 }
 
@@ -77,19 +70,13 @@
             }
 
             function rowMouseenter(e) {
-//                console.log("rowMouseenter()");
 
                 var key = getChooseRowKey($(this));
 
-//                console.log(key);
-//                console.log(beautyArray[key]);
-
                 // 取第一個值為預覽圖
                 $("#tooltipImg").attr("src", beautyArray[key][0]);
-
                 // 超出視窗時調整位置
                 var topPostion = e.pageY + 10;
-
                 if ((topPostion + 300) > $(window).height()) {
                     topPostion = topPostion - 300;
                 }
@@ -111,7 +98,8 @@
 
             $(function () {
                 console.log("page is ready");
-                request();
+                request(pageCount);
+                request(++pageCount);
 
                 $("#myCarousel").carousel('pause');
 
@@ -119,7 +107,16 @@
 //                $("th").bind({click: rowClick, mouseenter: rowMouseenter, mouseleave: rowMouseleave});
             }); // ready end
 
+            $(window).scroll(function () {
 
+                // 若無捲軸，此值為0
+                var scrollTop = Math.ceil($(window).scrollTop());
+                var topLeft = $(document).height() - $(window).height();
+
+                if (topLeft === scrollTop) {
+                    request(++pageCount);
+                }
+            });
 
         </script>
     </head>

@@ -11,7 +11,8 @@ class dbTest extends BaseController
     {
         $db1 = new \App\lib\MyDb();
 
-        return $db1->getImgLinks(23);
+        return $db1->getTitleId("[正妹] 豊田 萌絵", new \DateTime("9/7"));
+//        return '<tr class="row1"><td>123</td></tr>';
     }
 
 }

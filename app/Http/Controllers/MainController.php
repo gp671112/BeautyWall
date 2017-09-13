@@ -9,18 +9,28 @@ use App\lib\MyDb;
 class MainController extends BaseController
 {
 
-    private $host = "https://www.ptt.cc";
-
-    public function __invoke()
+    public function __invoke($page = 0)
     {
         $myDb = new MyDb;
+        $host = "https://www.ptt.cc";
         $beautyArray = array();
 
-        $httpGetText = file_get_contents("https://www.ptt.cc/bbs/Beauty/index.html");
+        $httpGetText = file_get_contents($host . "/bbs/Beauty/index.html");
 
-//        $myfile = fopen("index.txt", "w");
-//        fwrite($myfile, $httpGetText);
-//        fclose($myfile);
+        $pagePattern = '/(?<=<a class="btn wide" href="\/bbs\/Beauty\/index).+(?=.html">&lsaquo; 上頁<\/a>)/';
+        preg_match($pagePattern, $httpGetText, $lastPageIndex);
+
+        if ($page == 0)
+        {
+            $page = $lastPageIndex[0];
+        }
+        elseif ($page > 0)
+        {
+            $page = $lastPageIndex[0] - $page;
+        }
+
+        $httpGetText = file_get_contents($host . "/bbs/Beauty/index" . $page . ".html");
+
         // 取得所有標題及網頁連結
         $getAllPattern = "/(<a href=).+\s.+\s.+\s.+\s.+\s/";
 
@@ -67,7 +77,7 @@ class MainController extends BaseController
                     else
                     {
                         // 進入標題並取得圖片連結
-                        $pageLink = $this->host . $linkMatchs[0];
+                        $pageLink = $host . $linkMatchs[0];
                         $httpGetText = file_get_contents($pageLink);
 
                         $imgPattern = '/(?<=<a href=")http.+(?:.jpg|.png)(?=")/';
@@ -78,17 +88,15 @@ class MainController extends BaseController
 
                         $myDb->saveList($title, $date, $imgLinks);
                     }
-                    // key：標題，value：圖片連結
-                    array_push($beautyArray, [$title => $imgLinks]);
+
+                    if (count($imgLinks) > 0 && $imgLinks[0] != null)
+                    {
+                        // key：標題，value：圖片連結
+                        array_push($beautyArray, [$title => $imgLinks]);
+                    }
                 }
             }
         }
-
-        // get
-//        $key = key($linkArray[0]);
-//        $value = $linkArray[0][$key];
-// 取得上一頁tag
-        // .+(上頁</a>)
 
         $jsonCode = json_encode($beautyArray);
         return $jsonCode;

@@ -21,6 +21,6 @@ Route::get('main', function ()
     return View('main');
 });
 
-Route::get('request', 'MainController');
+Route::get('request/{page?}', 'MainController');
 
 Route::get('db', 'dbTest');
