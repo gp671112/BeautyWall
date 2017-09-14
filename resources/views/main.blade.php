@@ -4,47 +4,55 @@
         <title>表特牆</title>
         <meta charset="UTF-8">
 
-        <!--JQuery-->
-        <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
-
-        <!--BootStrap3-->
-        <link rel="stylesheet" href="css/bootstrap-3.3.7-dist/css/bootstrap.css"/>
-        <link rel="stylesheet" href="css/bootstrap-3.3.7-dist/css/bootstrap-theme.css"/>
-        <script type="text/javascript" src="css/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+        @component('header')
+        @endcomponent
 
         <script>
 
             var beautyArray = {};
             var pageCount = 0;
+            var ajaxFlag = true;
 
-            function request(page) {
+            function request() {
 
-                var timeCount = new Date();
-                $.ajax({
-                    method: "GET",
-                    url: "request/" + page,
-                    dataType: "json",
-                    beforeSend: function () {
-                        timeCount.getTime();
-                    }
-                }).done(function (response) {
-                    console.log("ajax done");
-                    timeCount = new Date().getTime() - timeCount;
-                    console.log("used " + timeCount + " ms");
-                    // 巡覽response物件
-                    for (var i = response.length - 1; i >= 0; i--) {
-                        var oneBeauty = response[i];
-                        // 單個物件，取得key(string)及value(array)
-                        for (var key in oneBeauty) {
-                            beautyArray[key] = oneBeauty[key];
-                            $("#mainTable").append("<tr class='row1'><td>" + key + "</td></tr>");
+                if (ajaxFlag) {
+
+                    $.ajax({
+                        method: "GET",
+                        url: "request/" + pageCount++,
+                        dataType: "json",
+                        beforeSend: function () {
+                            ajaxFlag = false;
+                            $("#loading").removeClass("loadingDone").addClass("loadingActive");
                         }
-                    }
+                    }).done(function (response) {
 
-                    // TODO: 此處可能會重複bind事件
-                    $(".row1").bind("click", rowClick);
-                    $(".row1").bind({mouseenter: rowMouseenter, mouseleave: rowMouseleave});
-                });
+                        // 巡覽response物件
+                        for (var i = response.length - 1; i >= 0; i--) {
+                            var oneBeauty = response[i];
+                            // 單個物件，取得key(string)及value(array)
+                            for (var key in oneBeauty) {
+                                beautyArray[key] = oneBeauty[key];
+                                $("#mainTable").append("<tr class='beautyRow' role='button'><td>" + key + "</td><td>" + oneBeauty[key].length + "</td></tr>");
+                            }
+                        }
+
+                        // 檢查文件高度，若小於一頁，則遞迴呼叫
+                        if ($(document).height() < 1500) {
+                            ajaxFlag = true;
+                            request();
+                        }
+
+                        $("#loading").removeClass("loadingActive").addClass("loadingDone");
+
+                        $(".beautyRow").unbind("click", rowClick);
+                        $(".beautyRow").unbind({mouseenter: rowMouseenter, mouseleave: rowMouseleave});
+                        $(".beautyRow").bind("click", rowClick);
+                        $(".beautyRow").bind({mouseenter: rowMouseenter, mouseleave: rowMouseleave});
+
+                        ajaxFlag = true;
+                    });
+                }
             }
 
             function rowClick() {
@@ -69,8 +77,8 @@
                 $(".modal").modal('show');
             }
 
+            // hover in
             function rowMouseenter(e) {
-
                 var key = getChooseRowKey($(this));
 
                 // 取第一個值為預覽圖
@@ -85,9 +93,8 @@
                 $("#tooltip").show();
             }
 
+            // hover out
             function rowMouseleave() {
-//                console.log("rowMouseleave()");
-
                 $("#tooltipImg").attr("src", "");
                 $("#tooltip").hide();
             }
@@ -96,46 +103,69 @@
                 return sender.children("td").html();
             }
 
+            // page ready
             $(function () {
-                console.log("page is ready");
-                request(pageCount);
-                request(++pageCount);
 
+                request();
                 $("#myCarousel").carousel('pause');
-
-                // test
-//                $("th").bind({click: rowClick, mouseenter: rowMouseenter, mouseleave: rowMouseleave});
-            }); // ready end
-
+            });
+            // scroll event
             $(window).scroll(function () {
 
-                // 若無捲軸，此值為0
                 var scrollTop = Math.ceil($(window).scrollTop());
-                var topLeft = $(document).height() - $(window).height();
-
-                if (topLeft === scrollTop) {
-                    request(++pageCount);
+                var topLeft = $(document).height() - $(window).height() - 300;
+                if (topLeft <= scrollTop) {
+                    request();
                 }
             });
 
         </script>
+
+        <style type="text/css">
+
+            .loadingActive {
+                display: block;
+            }
+
+            .loadingDone {
+                display: none;
+            }
+
+            #tooltip {
+                display: none; 
+                max-width: 300px;
+            }
+
+            #tooltipImg {
+                max-height: 100%;
+            }
+        </style>
     </head>
     <body>
         <div class="col-md-offset-2 col-md-8">
-            <table class="table">
+
+            @component('navi')
+            @endcomponent
+
+            <!--table-->
+            <table class="table table-hover">
                 <thead>
                     <tr>
                         <th>標題</th>
+                        <th>照片張數</th>
                     </tr>
                 </thead>
                 <tbody id="mainTable"></tbody>
             </table>
+
+            <!--loading-->
+            <img id="loading" class="center-block" src="../resources/assets/loading.gif" width="100px" />
         </div>
 
         <!--滑鼠圖片-->
-        <div id="tooltip" class="panel panel-default" style="display: none; max-width: 300px">
+        <div id="tooltip" class="panel panel-default">
             <div class="panel-body" >
-                <img id="tooltipImg" class="img-responsive" style="max-height: 100%">
+                <img id="tooltipImg" class="img-responsive">
             </div>
         </div>
 
@@ -164,6 +194,7 @@
                 </div>
             </div>
         </div>
+
     </body>
 </html>
 

@@ -21,6 +21,11 @@ Route::get('main', function ()
     return View('main');
 });
 
+Route::get('about', function()
+{
+    return View('about');
+});
+
 Route::get('request/{page?}', 'MainController');
 
 Route::get('db', 'dbTest');
