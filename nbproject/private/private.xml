@@ -5,7 +5,9 @@
         <group>
             <file>file:/C:/xampp/htdocs/BeautyWall/resources/views/main.blade.php</file>
             <file>file:/C:/xampp/htdocs/BeautyWall/routes/web.php</file>
-            <file>file:/C:/xampp/htdocs/BeautyWall/app/Http/Controllers/MainController.php</file>
+            <file>file:/C:/xampp/htdocs/BeautyWall/resources/views/about.blade.php</file>
+            <file>file:/C:/xampp/htdocs/BeautyWall/resources/views/navi.blade.php</file>
+            <file>file:/C:/xampp/htdocs/BeautyWall/resources/views/header.blade.php</file>
         </group>
     </open-files>
 </project-private>

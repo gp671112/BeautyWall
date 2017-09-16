@@ -6,7 +6,7 @@
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
                 <li id="naviMain"><a href="main">主頁</a>
-                <li id="naviAbout"><a href="about">關於</a>
+                <li id="naviAbout"><a href="about">關於本網站</a>
             </ul>
         </div>
     </div>            
