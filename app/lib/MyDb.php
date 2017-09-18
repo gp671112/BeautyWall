@@ -11,8 +11,8 @@ class MyDb
     function getImgLinks($titleId)
     {
         $result = DB::table("title")
-                ->select("link.link")
-                ->leftJoin("link", "title.id", "=", "link.titleId")
+                ->select("img_link.link")
+                ->leftJoin("img_link", "title.id", "=", "img_link.titleId")
                 ->where("title.id", "=", $titleId)
                 ->get();
 
@@ -20,26 +20,26 @@ class MyDb
     }
 
     // 以標題及日期取得ID
-    function getTitleId($title = "", $date = null)
+    function getTitleId($title = "", $pageLink = "", $date = null)
     {
         $result = DB::table("title")
                 ->select("id")
-                ->where([["title", "=", $title], ["date", "=", $date]])
+                ->where([["title", "=", $title], ["page_link", "=", $pageLink], ["date", "=", $date]])
                 ->get()
                 ->first();
 
         return ($result == null) ? 0 : $result->id;
     }
 
-    // insert一個PTT主題，包括標題、日期、圖片連結
-    function saveList($title = "", $date = null, $links = [])
+    // insert一個PTT主題，包括標題、、連結、日期、圖片連結
+    function saveList($title = "", $pageLink = "", $date = null, $links = [])
     {
         $id = DB::table("title")
-                ->insertGetId(["title" => $title, "date" => $date]);
+                ->insertGetId(["title" => $title, "page_link" => $pageLink, "date" => $date]);
 
         foreach ($links as $link)
         {
-            DB::table("link")->insert(["link" => $link, "titleId" => $id]);
+            DB::table("img_link")->insert(["link" => $link, "titleId" => $id]);
         }
     }
 

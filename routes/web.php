@@ -13,13 +13,13 @@
 
 Route::get('/', function ()
 {
-    return view('welcome');
+    return redirect()->route('main');
 });
 
 Route::get('main', function ()
 {
     return View('main');
-});
+})->name('main');
 
 Route::get('about', function()
 {
@@ -29,3 +29,5 @@ Route::get('about', function()
 Route::get('request/{page?}', 'MainController');
 
 Route::get('db', 'dbTest');
+
+

@@ -13,14 +13,14 @@ class MainController extends BaseController
     {
         $myDb = new MyDb;
         $host = "https://www.ptt.cc";
-        $beautyArray = array();
+        $beautyArray = [];
 
         $httpGetText = file_get_contents($host . "/bbs/Beauty/index.html");
 
         $pagePattern = '/(?<=<a class="btn wide" href="\/bbs\/Beauty\/index).+(?=.html">&lsaquo; 上頁<\/a>)/';
         preg_match($pagePattern, $httpGetText, $lastPageIndex);
 
-        if ($page == 0)
+        if ($page <= 0)
         {
             $page = $lastPageIndex[0];
         }
@@ -59,10 +59,11 @@ class MainController extends BaseController
                     // 與資料庫比對日期與標題，若相符，則由資料庫取得連結
                     // 若不相符則進入網頁取得連結，取得後存入資料庫
                     $title = $titleMatchs[0];
+                    $pageLink = $host . $linkMatchs[0];
                     $date = new DateTime($dateMatchs[0]); // string to datetime
                     $imgLinks = [];
 
-                    $titleId = $myDb->getTitleId($title, $date);
+                    $titleId = $myDb->getTitleId($title, $pageLink, $date);
 
                     if ($titleId > 0)
                     {
@@ -77,7 +78,6 @@ class MainController extends BaseController
                     else
                     {
                         // 進入標題並取得圖片連結
-                        $pageLink = $host . $linkMatchs[0];
                         $httpGetText = file_get_contents($pageLink);
 
                         $imgPattern = '/(?<=<a href=")http.+(?:.jpg|.png)(?=")/';
@@ -86,13 +86,13 @@ class MainController extends BaseController
                         // 若該頁無圖片，則為空陣列
                         $imgLinks = $imgLinkMatchs[0];
 
-                        $myDb->saveList($title, $date, $imgLinks);
+                        $myDb->saveList($title, $pageLink, $date, $imgLinks);
                     }
 
                     if (count($imgLinks) > 0 && $imgLinks[0] != null)
                     {
-                        // key：標題，value：圖片連結
-                        array_push($beautyArray, [$title => $imgLinks]);
+                        // 組成物件
+                        $beautyArray[$pageLink] = ["title" => $title, "imgLinks" => $imgLinks];
                     }
                 }
             }
