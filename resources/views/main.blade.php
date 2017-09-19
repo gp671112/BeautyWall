@@ -120,7 +120,7 @@
             </table>
 
             <!--loading-->
-            <img id="loading" class="center-block loadingDone" src="../resources/assets/loading.gif" width="100px" />
+            <img id="loading" class="center-block loadingDone" src="img/loading.gif" width="100px" />
         </div>
 
         <!--row click-->
